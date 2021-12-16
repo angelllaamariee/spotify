@@ -1,0 +1,302 @@
+---
+title: "Final Project"
+author: "Angela Sanchez"
+output:
+  word_document: default
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+##1. Introduction
+(a) What is your overarching story?
+#While looking up datasets I found that spotify came up a lot. I use spotify quite frequently so I used this website 
+#called Exportify and gathered up my top songs from 2020 & 2021 to use for data analysis
+(b) What are some interesting questions that you believe you can answer with the
+data set you selected?
+#Some interesting questions I believe I can answer within is does my music taste change within 1 year and if so how? 
+#Who are my top artists and how frequently do they show up? Popularity? 
+
+c) What elements of the data set do you need to explain to ensure the reader
+understands how it can answer your research question(s)
+#Some elements of the dataset that should be explain prior is that this is my personal 
+#playlist and what is shown here is not an overall top songs directly from spotify 
+(d) State your research question(s) and hypotheses (the expected answer to your
+question)
+#within is does my music taste change within 1 year and if so how? 
+#Who are my top artists and how frequently do they show up? Popularity? 
+```{r}
+#IMPORTS 
+library(readr)
+library(dplyr)
+library(ggplot2)
+library(RColorBrewer,quietly = TRUE)
+library(GISTools,quietly = TRUE)
+library(gapminder,,quietly = TRUE)
+library(corrplot,,quietly = TRUE)
+
+spotify2020<-read.csv("C:/Users/Angela Sanchez Tejax/Desktop/Fall 2021/RProgram/your_top_songs_2020.csv")
+
+
+spotify2020
+
+spotify2021<-read.csv("C:/Users/Angela Sanchez Tejax/Desktop/Fall 2021/RProgram/your_top_songs_2021.csv")
+
+
+spotify2021
+```
+```{r}
+glimpse(spotify2020)
+glimpse(spotify2021)
+
+summary(spotify2020)
+summary(spotify2021)
+```
+##2. Methods
+(a) Begin with a description of the data set
+i. How was this data collected originally (if you know) and how did you go
+about finding and gaining access to the data set?
+##The Data was collected from a develops used website called Exportify 
+##I had to allow access to my personal spotify account to create a csv file 
+ii. What variables does it contain? (variable type)
+(b) You can / should include you initial visual exploration of the data set
+i. Draw the distributions of your variables using the correct visualization (his-
+tograms, box plots)
+##Variables it contains is Artist Name, Popularity, Album Name, Track Duration 
+
+
+
+
+
+
+##3. Results
+(a) Here is where you will generate most of your R code to visualize specific effects
+in your data and conduct the proper analyses.
+(b) Explain, using your own words, the analyses you have conducted in R and the
+results you have obtained.
+(c) Create visualizations that support your analyses.
+
+
+##Lets Determine my top artists for 2020 & 2021
+```{r}
+top_artists <- spotify2020 %>%
+    group_by(Artist.Name.s.)  %>%
+    summarise(Popularity = n()) %>%
+    filter(Popularity > 2) %>%
+    arrange(desc(Popularity))
+
+
+ggplot(top_artists, aes(x = Artist.Name.s., y = Popularity)) +
+    geom_bar(stat = "identity",  fill = "blue", width = 0.6 ) + 
+    labs(title = "Top Artists of 2020", x = "Artists", y = "Popularity (Angela's Top Songs 2020)") +
+    theme(plot.title = element_text(size=25), axis.title = element_text(size=20)) +
+    geom_text(aes(label=Popularity), hjust = 2, size = 3, color = 'white') +
+    coord_flip()
+
+
+
+```
+#Top Artists of 2021
+
+```{r}
+
+top_artists <- spotify2021 %>%
+    group_by(Artist.Name.s.)  %>%
+    summarise(Popularity = n()) %>%
+    filter(Popularity > 2) %>%
+    arrange(desc(Popularity))
+
+
+ggplot(top_artists, aes(x = Artist.Name.s., y = Popularity)) +
+    geom_bar(stat = "identity",  fill = "orange", width = 0.6 ) + #geom_bar() makes the height of the bar proportional to the number of cases in each group
+    labs(title = "Top Artists of 2021", x = "Artists", y = "Popularity (Angela's Top Songs 2021)") +
+    theme(plot.title = element_text(size=25), axis.title = element_text(size=20)) +
+    geom_text(aes(label=Popularity), hjust = 2, size = 3, color = 'black') +
+    coord_flip()#coord_flip. Creates Cartesian coordinates with x and y flipped and then convert them with ggplotly
+
+
+```
+#Top Tracks from Most Played Artist of 2020: Bad Bunny
+```{r,fig.width= 13 , fig.height= 8}
+
+badbunny <- spotify2020 %>%
+    filter(Album.Name  == "YHLQMDLG", Artist.Name.s. == "Bad Bunny")
+
+formatted_ed <- badbunny %>%
+    group_by(`Track.Name`) %>%
+    summarise(Popularity = n()) %>%
+    arrange(desc(Popularity))
+
+formatted_ed
+
+ggplot(badbunny, aes(x = Track.Name, y = Popularity)) +
+    geom_bar(stat = "identity",  fill = "green", width = 0.6 ) + #geom_bar() makes the height of the bar proportional to the number of cases in each group
+    labs(title = "Top Tracks from Most Played Artist of 2020: Bad Bunny", x = "Tracks", y = "") +
+    theme(plot.title = element_text(size=25), axis.title = element_text(size=20)) +
+    geom_text(aes(label=Popularity), hjust = 2, size = 3, color = 'black') +
+    coord_flip()#coord_flip. Creates Cartesian coordinates with x and y flipped and then convert them with ggplotly
+
+
+
+```
+
+
+```{r,fig.width= 13 , fig.height= 8}
+
+her <- spotify2021 %>%
+    filter(Album.Name  == "H.E.R.", Artist.Name.s. == "H.E.R.")
+
+formatted_ed <- her %>%
+    group_by(`Track.Name`) %>%
+    summarise(Popularity = n()) %>%
+    arrange(desc(Popularity))
+
+formatted_ed
+
+ggplot(her, aes(x = Track.Name, y = Popularity)) +
+    geom_bar(stat = "identity",  fill = "yellow", width = 0.6 ) + #geom_bar() makes the height of the bar proportional to the number of cases in each group
+    labs(title = "Top Tracks from Most Played Artist of 2021: H.E.R", x = "Tracks", y = "") +
+    theme(plot.title = element_text(size=25), axis.title = element_text(size=20)) +
+    geom_text(aes(label=Popularity), hjust = 2, size = 3, color = 'black') +
+    coord_flip()#coord_flip. Creates Cartesian coordinates with x and y flipped and then convert them with ggplotly
+
+
+
+```
+##Track Duration for Top 2020 Artist Album 
+## Bad Bunny 
+##YHLQMDLG
+
+```{r,fig.width= 13 , fig.height= 8}
+badbunny <- spotify2020 %>%
+    filter(Album.Name  == "YHLQMDLG", Artist.Name.s. == "Bad Bunny")
+
+formatted_bb <- badbunny %>%
+    group_by(`Track.Name`) %>%
+    arrange((Track.Duration..ms.))
+
+formatted_bb
+
+ggplot(formatted_bb, aes(x = reorder(Track.Name,Track.Duration..ms.), y = Track.Duration..ms., fill = reorder(Track.Name,Track.Duration..ms.))) +
+    geom_bar(stat = "identity") + labs(title = "Track Duration for Top Artist Album 2020", x = "Track Names", y = "Track Duration") + geom_text(aes(label=Track.Duration..ms.), position = position_stack(vjust = 0.5)) + theme_bw() + theme(plot.title = element_text(size=25), axis.title = element_text(size=25))
+
+```
+```{r,fig.width= 13 , fig.height= 8}
+her <- spotify2021 %>%
+    filter(Album.Name  == "H.E.R.", Artist.Name.s. == "H.E.R.")
+
+formatted_her <- her %>%
+    group_by(`Track.Name`) %>%
+    arrange((Track.Duration..ms.))
+
+formatted_her
+
+ggplot(formatted_her, aes(x = reorder(Track.Name,Track.Duration..ms.), y = Track.Duration..ms., fill = reorder(Track.Name,Track.Duration..ms.))) +
+    geom_bar(stat = "identity") + labs(title = "Track Duration for Top Artist Album 2021", x = "Track Names", y = "Track Duration") + geom_text(aes(label=Track.Duration..ms.), position = position_stack(vjust = 0.5)) + theme_bw() + theme(plot.title = element_text(size=25), axis.title = element_text(size=25))
+
+
+
+
+```
+## Density PLot for 2020 Popularity, this will show how many songs within my top playlist are the most popular with other users 
+```{r,fig.width= 13 , fig.height= 8}
+pop_density <- ggplot(spotify2020) +
+    geom_density(aes(Popularity, fill ="Popularity")) + 
+    scale_x_continuous(name = "Popularity") +
+    scale_y_continuous(name = "Density") +
+    ggtitle("Density Plot: Top Songs 2020 Popularity") +
+    theme_bw() 
+    theme(plot.title = element_text(size = 14),
+            text = element_text(size = 12)) +
+    theme(legend.title=element_blank())
+
+print(pop_density)
+
+```
+## Density PLot for 2021 Popularity, this will show how many songs within my top playlist are the most popular with other users 
+```{r,fig.width= 13 , fig.height= 8}
+pop_density <- ggplot(spotify2021) +
+    geom_density(aes(Popularity, fill ="Popularity")) + 
+    scale_x_continuous(name = "Popularity") +
+    scale_y_continuous(name = "Density") +
+    ggtitle("Density Plot: Top Songs 2020 Popularity") +
+    theme_bw() 
+    theme(plot.title = element_text(size = 14),
+            text = element_text(size = 12)) +
+    theme(legend.title=element_blank())
+
+print(pop_density)
+
+```
+
+
+## Track Duration  for 2020 , this will show how many songs fall within the same time slots ( this could be for purposes of having a song short / long enough for a user )
+
+```{r,fig.width= 13 , fig.height= 8}
+pop_density <- ggplot(spotify2020) +
+    geom_density(aes(Track.Duration..ms., fill ="Track Duration")) + 
+    scale_x_continuous(name = "Track Duration ") +
+    scale_y_continuous(name = "Density") +
+    ggtitle("Density Plot: Top Songs 2020 Track Duration") +
+    theme_bw() 
+    theme(plot.title = element_text(size = 14),
+            text = element_text(size = 12)) +
+    theme(legend.title=element_blank())
+
+pop_density
+
+```
+## Track Duration  for 2020 , this will show how many songs fall within the same time slots ( this could be for purposes of having a song short / long enough for a user )
+
+
+```{r,fig.width= 13 , fig.height= 8}
+pop_density <- ggplot(spotify2021) +
+    geom_density(aes(Track.Duration..ms., fill ="Track Duration")) + 
+    scale_x_continuous(name = "Track Duration ") +
+    scale_y_continuous(name = "Density") +
+    ggtitle("Density Plot: Top Songs 2021 Track Duration") +
+    theme_bw() 
+    theme(plot.title = element_text(size = 14),
+            text = element_text(size = 12)) +
+    theme(legend.title=element_blank())
+
+pop_density
+
+```
+
+##4. Discussion
+(a) What are the conclusions that you draw from your analyses?
+##Conclusions I made from this analysis is that over one year time a music artits can change
+##By linking popularity to the artist proves how influence can affect ones music taste as they can
+##Hear them more frequently thus adding it to their playlist.
+(b) How do these conclusions answer your research questions?
+#These conclusions help answer my research questions in a visual manner showing how frequently 
+##One artist shows up and how that can add to them becoming my top artist for 2020 & 2021
+(c) How do these conclusion affect the topic on a larger scale?
+i. What should the reader take home from your analysis of the data set you
+selected?
+##The reader should take home from my analysis is that you can learn a lot about yourself 
+##within doing research regarding your own taste. By doing this it helps me understand 
+#How & why a song is popular and how it ending up on my playlist. 
